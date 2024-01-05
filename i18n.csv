@@ -1,0 +1,6 @@
+key,en_US,zh_TW,ja_JP
+ChineseOCR Lite（本地）,ChineseOCR Lite (Local),ChineseOCR Lite（本地）,ChineseOCR Lite（ローカル）
+限制图像边长,Limit image edge length,限制影像邊長,画像の辺の長さを制限する
+（默认）,(Default),（默認）,(デフォルト)
+无限制,Unlimited,無限制,制限なし
+将边长大于该值的图片进行压缩，可以提高识别速度。可能降低识别精度。,Compress images with edge length greater than this value to improve recognition speed. This may reduce recognition accuracy.,將邊長大於該值的圖片進行壓縮，可以提高識別速度。 可能降低識別精度。,辺の長さがこの値より大きい画像を圧縮することで、認識速度を高めることができます。認識精度が低下する可能性があります。
