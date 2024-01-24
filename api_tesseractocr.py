@@ -58,10 +58,10 @@ class Api:
             if score == -1:
                 continue
             top,left,width,height = int(item[6]), int(item[7]), int(item[8]), int(item[9])
-            topLeft = [left,top]
-            topRight = [left+width,top]
-            bottomLeft = [left,top+height]
-            bottomRight = [left+width,top+height]
+            topLeft = [top,left]
+            topRight = [top,left+width]
+            bottomLeft = [top+height,left]
+            bottomRight = [top+height,left+width]
             box = [topLeft,topRight,bottomLeft,bottomRight]
             # FIXIT: box目前实现存在异常，会影响box显示以及竖屏的排版
             datas.append({"text":text,"score":score,"box":box})
