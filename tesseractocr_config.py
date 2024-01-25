@@ -51,5 +51,10 @@ localOptions = {
         "title": "开启竖版识别",
         "toolTip": "仅限中文",
         "default": True,
+    },
+    "accur":{
+        "title": "置信度下限",
+        "toolTip": "识别数据中低于该置信度的内容将会被丢弃(输入范围:0~100)",
+        "default": "60",
     }
 }

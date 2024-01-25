@@ -49,23 +49,79 @@ class Api:
             selects += otherLangs
         return selects
 
+    # 获取两个连续单词的分隔符。letter1为单词1结尾字母，letter2为单词2结尾字母
+    def _word_separator(self, letter1, letter2):
+        # 判断结尾和开头，是否属于汉藏语族
+        # 汉藏语族：行间无需分割符。印欧语族：则两行之间需加空格。
+        ranges = [
+            (0x4E00, 0x9FFF),  # 汉字
+            (0x3040, 0x30FF),  # 日文
+            (0xAC00, 0xD7AF),  # 韩文
+            (0xFF01, 0xFF5E),  # 全角字符
+        ]
+        fa, fb = False, False
+        for l, r in ranges:
+            if l <= ord(letter1) <= r:
+                fa = True
+            if l <= ord(letter2) <= r:
+                fb = True
+        if fa and fb: # 两个字符都是汉藏语族，才没有空格
+            return ""
+
+        # 特殊情况：字母2为缩写，如 n't。或者字母2为结尾符号，意味着OCR错误分割。
+        if letter2 in {r"'", ",", ".", "!", "?", ";", ":"}:
+            return ""
+        # 其它正常情况，如 俩单词 或 一单词一汉字，加空格
+        return " "
+    
+    def calcBox(self,left,right):
+        topLeft = left[0]
+        topRight = right[1] if right else left[1]
+        bottomLeft = left[3]
+        bottomRight = right[2] if right else left[2]
+        return [topLeft,topRight, bottomRight, bottomLeft]
+
     def standardize(self,res):
         # ['level', 'page_num', 'block_num', 'par_num', 'line_num', 'word_num', 'left', 'top', 'width', 'height', 'conf', 'text']
         datas = []
+        curString = ""
+        curLeftBox = None
+        curRightBox = None
+        scores = []
         for item in res[2:]: # 第一行为固定的提示表头
             text = item[11]
             score = float(item[10])
-            if score == -1:
-                continue
+            level = int(item[0]) # level 为 5 时为单词，依据此进行组句
             left,top,width,height = int(item[6]), int(item[7]), int(item[8]), int(item[9])
             topLeft = [left,top]
             topRight = [left+width,top]
             bottomLeft = [left,top+height]
             bottomRight = [left+width,top+height]
             box = [topLeft,topRight, bottomRight, bottomLeft]
-            # FIXIT: box目前实现存在异常，会影响box显示以及竖屏的排版
-            datas.append({"text":text,"score":score,"box":box})
-            print({"text":text,"score":score,"box":box})
+            if level != 5 and len(scores) != 0:
+                final = 0
+                for i in range(len(scores)):
+                    final += scores[i]
+                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox)})
+                print(datas[-1])
+                curRightBox = None
+                curLeftBox = None
+                scores = []
+                curString = ""
+                continue
+            if level == 5:
+                if score <= self.accuracy:
+                    continue
+                if curString == "": # 开头不做处理
+                    curLeftBox = box
+                    curString = text
+                else:
+                    curRightBox = box
+                    curString += self._word_separator(curString[-1],text[-1])+text
+                scores.append(score)
+                continue
+            else: # 多个非 level5 相连则不做处理，直接跳过即可
+                continue
         if datas:
             out = {"code": 100, "data": datas}
         else:
@@ -75,6 +131,7 @@ class Api:
     # 获取OcrHandle 实例
     def start(self, argd):
         self.psm = "--psm 3" if argd['psm'] else "--psm 6" # psm 3: 自动分页 psm6: 单文本块分页  magic number来源：tesseract docs
+        self.accuracy = float(argd['accur'])
         try:
             langs = self.get_select_languages(argd)
             self.languages = "+".join(langs)
