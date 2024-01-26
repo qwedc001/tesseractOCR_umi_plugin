@@ -35,7 +35,6 @@ class Api:
                 continue
             if k.startswith("language.") and flag:
                 language = k[9:]
-                print(argd['vert'])
                 if (language == 'chi_sim' or language == "chi_tra") and argd['vert']:
                         selects.append(language+"_vert")
                 selects.append(language)
@@ -103,7 +102,6 @@ class Api:
                 for i in range(len(scores)):
                     final += scores[i]
                 datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox)})
-                print(datas[-1])
                 curRightBox = None
                 curLeftBox = None
                 scores = []
@@ -135,7 +133,6 @@ class Api:
         try:
             langs = self.get_select_languages(argd)
             self.languages = "+".join(langs)
-            print(self.languages)
             if self.tesseractOcr:  # 引擎已启动，则跳过再启动
                 return ""
             site.addsitedir(SitePackages)  # 依赖库到添加python搜索路径
@@ -157,6 +154,7 @@ class Api:
         else:
             try:
                 res = [item.split('\t') for item in self.tesseractOcr.image_to_data(img, lang=self.languages,config=self.psm).split('\n')][:-1] # TODO: 此处tesseract docs实际上给出的command line example很少，所以此处的config以最重要的psm先代替，其他的需要再多研究一下docs再加入
+                res.append([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,""]) # 确保所有的文字都被正确append
                 res = self.standardize(res)
             except Exception as e:
                 traceback.print_exc()
