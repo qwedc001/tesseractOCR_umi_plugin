@@ -86,7 +86,6 @@ class Api:
                 curLeftBox = None
                 scores = []
                 curString = ""
-                continue
             if level == 3 and len(datas):
                 datas[-1]["end"]='\n'
             if level == 5:
