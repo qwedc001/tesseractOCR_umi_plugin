@@ -16,7 +16,7 @@ ModelDir = os.path.join(CurrentDir,"engine/tessdata/")
 class Api:
     def __init__(self, globalArgd):
         self.tesseractOcr = None
-        self.accuracy = globalArgd['accur']
+        self.accuracy = float(globalArgd['accur'])
 
     def get_select_languages(self,argd) -> list:
         selects = []
@@ -81,12 +81,14 @@ class Api:
                 final = 0
                 for i in range(len(scores)):
                     final += scores[i]
-                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox)})
+                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox), "end": ''})
                 curRightBox = None
                 curLeftBox = None
                 scores = []
                 curString = ""
                 continue
+            if level == 3:
+                datas[-1]["end"]='\n'
             if level == 5:
                 if score <= self.accuracy:
                     continue
