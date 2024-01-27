@@ -16,6 +16,7 @@ ModelDir = os.path.join(CurrentDir,"engine/tessdata/")
 class Api:
     def __init__(self, globalArgd):
         self.tesseractOcr = None
+        self.accuracy = float(globalArgd['accur'])
 
     def get_select_languages(self,argd) -> list:
         selects = []
@@ -76,16 +77,17 @@ class Api:
             bottomLeft = [left,top+height]
             bottomRight = [left+width,top+height]
             box = [topLeft,topRight, bottomRight, bottomLeft]
-            if level != 5 and len(scores) != 0:
+            if level != 5 and len(scores) != 0 and not curString.isspace():
                 final = 0
                 for i in range(len(scores)):
                     final += scores[i]
-                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox)})
+                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox), "end": ''})
                 curRightBox = None
                 curLeftBox = None
                 scores = []
                 curString = ""
-                continue
+            if level == 3 and len(datas):
+                datas[-1]["end"]='\n'
             if level == 5:
                 if score <= self.accuracy:
                     continue
@@ -108,7 +110,6 @@ class Api:
     # 获取OcrHandle 实例
     def start(self, argd):
         self.psm = "--psm 3" if argd['psm'] else "--psm 6" # psm 3: 自动分页 psm6: 单文本块分页  magic number来源：tesseract docs
-        self.accuracy = float(argd['accur'])
         try:
             langs = self.get_select_languages(argd)
             self.languages = "+".join(langs)
