@@ -16,6 +16,7 @@ ModelDir = os.path.join(CurrentDir,"engine/tessdata/")
 class Api:
     def __init__(self, globalArgd):
         self.tesseractOcr = None
+        self.accuracy = globalArgd['accur']
 
     def get_select_languages(self,argd) -> list:
         selects = []
@@ -108,7 +109,6 @@ class Api:
     # 获取OcrHandle 实例
     def start(self, argd):
         self.psm = "--psm 3" if argd['psm'] else "--psm 6" # psm 3: 自动分页 psm6: 单文本块分页  magic number来源：tesseract docs
-        self.accuracy = float(argd['accur'])
         try:
             langs = self.get_select_languages(argd)
             self.languages = "+".join(langs)
