@@ -77,7 +77,7 @@ class Api:
             bottomLeft = [left,top+height]
             bottomRight = [left+width,top+height]
             box = [topLeft,topRight, bottomRight, bottomLeft]
-            if level != 5 and len(scores) != 0:
+            if level != 5 and len(scores) != 0 and not curString.isspace():
                 final = 0
                 for i in range(len(scores)):
                     final += scores[i]
@@ -87,7 +87,7 @@ class Api:
                 scores = []
                 curString = ""
                 continue
-            if level == 3:
+            if level == 3 and len(datas):
                 datas[-1]["end"]='\n'
             if level == 5:
                 if score <= self.accuracy:
