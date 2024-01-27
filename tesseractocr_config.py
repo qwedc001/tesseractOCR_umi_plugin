@@ -1,6 +1,24 @@
 from plugin_i18n import Translator
+import os
 
 tr = Translator(__file__, "i18n.csv")
+
+TESSERACT_SUPPORTED = {'afr': 'Afrikaans', 'amh': 'Amharic', 'ara': 'Arabic', 'asm': 'Assamese', 'aze': 'Azerbaijani', 'aze_cyrl': 'Azerbaijani - Cyrilic', 'bel': 'Belarusian', 'ben': 'Bengali', 'bod': 'Tibetan', 'bos': 'Bosnian', 'bre': 'Breton', 'bul': 'Bulgarian', 'cat': 'Catalan; Valencian', 'ceb': 'Cebuano', 'ces': 'Czech', 'chr': 'Cherokee', 'cos': 'Corsican', 'cym': 'Welsh', 'dan': 'Danish', 'deu': 'German', 'div': 'Dhivehi', 'dzo': 'Dzongkha', 'ell': 'Greek, Modern, 1453-', 'enm': 'English, Middle, 1100-1500', 'epo': 'Esperanto', 'equ': 'Math / equation detection module', 'est': 'Estonian', 'eus': 'Basque', 'fas': 'Persian', 'fao': 'Faroese', 'fil': 'Filipino', 'fin': 'Finnish', 'fra': 'French', 'frk': 'Frankish', 'frm': 'French, Middle, ca.1400-1600', 'fry': 'West Frisian', 'gla': 'Scottish Gaelic', 'gle': 'Irish', 'glg': 'Galician', 'grc': 'Greek, Ancient, to 1453', 'guj': 'Gujarati', 'hat': 'Haitian; Haitian Creole', 'heb': 'Hebrew', 'hin': 'Hindi', 'hrv': 'Croatian', 'hun': 'Hungarian', 'hye': 'Armenian', 'iku': 'Inuktitut', 'ind': 'Indonesian', 'isl': 'Icelandic', 'ita': 'Italian', 'ita_old': 'Italian - Old', 'jav': 'Javanese', 'kan': 'Kannada', 'kat': 'Georgian', 'kat_old': 'Georgian - Old', 'kaz': 'Kazakh', 'khm': 'Central Khmer', 'kir': 'Kirghiz; Kyrgyz', 'kmr': 'Kurdish Kurmanji', 'kor': 'Korean', 'kor_vert': 'Korean vertical', 'lao': 'Lao', 'lat': 'Latin', 'lav': 'Latvian', 'lit': 'Lithuanian', 'ltz': 'Luxembourgish', 'mal': 'Malayalam', 'mar': 'Marathi', 'mkd': 'Macedonian', 'mlt': 'Maltese', 'mon': 'Mongolian', 'mri': 'Maori', 'msa': 'Malay', 'mya': 'Burmese', 'nep': 'Nepali', 'nld': 'Dutch; Flemish', 'nor': 'Norwegian', 'oci': 'Occitan post 1500', 'ori': 'Oriya', 'pan': 'Panjabi; Punjabi', 'pol': 'Polish', 'por': 'Portuguese', 'pus': 'Pushto; Pashto', 'que': 'Quechua', 'ron': 'Romanian; Moldavian; Moldovan', 'rus': 'Russian', 'san': 'Sanskrit', 'sin': 'Sinhala; Sinhalese', 'slk': 'Slovak', 'slv': 'Slovenian', 'snd': 'Sindhi', 'spa': 'Spanish; Castilian', 'spa_old': 'Spanish; Castilian - Old', 'sqi': 'Albanian', 'srp': 'Serbian', 'srp_latn': 'Serbian - Latin', 'sun': 'Sundanese', 'swa': 'Swahili', 'swe': 'Swedish', 'syr': 'Syriac', 'tam': 'Tamil', 'tat': 'Tatar', 'tel': 'Telugu', 'tgk': 'Tajik', 'tha': 'Thai', 'tir': 'Tigrinya', 'ton': 'Tonga', 'tur': 'Turkish', 'uig': 'Uighur; Uyghur', 'ukr': 'Ukrainian', 'urd': 'Urdu', 'uzb': 'Uzbek', 'uzb_cyrl': 'Uzbek - Cyrilic vie Vietnamese', 'yid': 'Yiddish', 'yor': 'Yoruba'}
+
+def _dymanicLangList():
+    modelsPath = os.path.dirname(os.path.abspath(__file__)) + "/engine/tessdata"
+    files = os.listdir(modelsPath)
+    with open(modelsPath+"/modelsInstalled.txt",'a') as f:
+        for fileName in files:
+            if fileName.endswith(".traineddata") and not fileName.endswith("vert.traineddata"):
+                f.write(fileName+"\n")
+                modelName = fileName.split(".")[0]
+                if not modelName in localOptions['language'] and modelName in TESSERACT_SUPPORTED:
+                    localOptions['language'][modelName] = {
+                        "title":TESSERACT_SUPPORTED[modelName],
+                        "default": False,
+                    }
+    f.close()
 
 globalOptions = {
     "title": tr("TesseractOCR（本地）"),
@@ -32,14 +50,9 @@ localOptions = {
             "title": "日文",
             "default": False,
         },
-        "~enabledOther": {
-            "title": "启用自定义语言短码",
+        "equ": {
+            "title": "启用数学识别",
             "default": False,
-        },
-        "~other": {
-            "title": "自定义语言短码",
-            "toolTip":  "请查看tesseract官方文档，使用空格对所选语言进行分割。",
-            "default": "",
         },
     },
     "psm":{
@@ -58,3 +71,5 @@ localOptions = {
         "default": "60",
     }
 }
+
+_dymanicLangList()

@@ -11,41 +11,20 @@ CurrentDir = os.path.dirname(os.path.abspath(__file__))
 # 依赖包目录
 SitePackages = os.path.join(CurrentDir, "site-packages")
 
-TESSERACT_SUPPORTED = ['afr', 'amh', 'ara', 'asm', 'aze', 'aze', 'bel', 'ben', 'bod', 'bos', 'bre', 'bul', 'cat', 'ceb', 'ces', 'chi', 'chi', 'chr', 'cos', 'cym', 'dan', 'deu', 'div', 'dzo', 'ell', 'Mod', '145', 'eng', 'enm', 'Mid', '110', 'epo', 'equ', 'est', 'eus', 'fas', 'fao', 'fil', 'fin', 'fra', 'frk', 'frm', 'Mid', 'ca.', 'fry', 'gla', 'gle', 'glg', 'grc', 'Anc', 'to ', 'guj', 'hat', 'heb', 'hin', 'hrv', 'hun', 'hye', 'iku', 'ind', 'isl', 'ita', 'ita', 'jav', 'jpn', 'kan', 'kat', 'kat', 'kaz', 'khm', 'kir', 'kmr', 'kor', 'kor', 'lao', 'lat', 'lav', 'lit', 'ltz', 'mal', 'mar', 'mkd', 'mlt', 'mon', 'mri', 'msa', 'mya', 'nep', 'nld', 'nor', 'oci', 'ori', 'osd', 'pan', 'pol', 'por', 'pus', 'que', 'ron', 'rus', 'san', 'sin', 'slk', 'slv', 'snd', 'spa', 'spa', 'sqi', 'srp', 'srp', 'sun', 'swa', 'swe', 'syr', 'tam', 'tat', 'tel', 'tgk', 'tha', 'tir', 'ton', 'tur', 'uig', 'ukr', 'urd', 'uzb', 'uzb', 'vie', 'yid', 'yor']
 ModelDir = os.path.join(CurrentDir,"engine/tessdata/")
 
 class Api:
     def __init__(self, globalArgd):
         self.tesseractOcr = None
-    
-    def check(self,languages:list) -> (list,list):
-        unsupported = []
-        uninstalled = []
-        for language in languages:
-            if language not in TESSERACT_SUPPORTED:
-                unsupported.append(language)
-            elif not os.path.exists(ModelDir + language + ".traineddata"):
-                uninstalled.append(language)
-        return (unsupported,uninstalled)
 
     def get_select_languages(self,argd) -> list:
         selects = []
         for k,flag in argd.items():
-            if k == "language.~enabledOther" or k == 'language.~other':
-                continue
             if k.startswith("language.") and flag:
                 language = k[9:]
                 if (language == 'chi_sim' or language == "chi_tra") and argd['vert']:
                         selects.append(language+"_vert")
                 selects.append(language)
-        if argd['language.~enabledOther']:
-            otherLangs = argd['language.~other'].split(" ")
-            unsupported,uninstalled = self.check(otherLangs)
-            if len(unsupported):
-                raise Exception(f"Unsupported languages: {unsupported}")
-            if len(uninstalled):
-                raise Exception(f"Uninstalled languages: {uninstalled}")
-            selects += otherLangs
         return selects
 
     # 获取两个连续单词的分隔符。letter1为单词1结尾字母，letter2为单词2结尾字母
