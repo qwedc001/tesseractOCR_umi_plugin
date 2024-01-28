@@ -30,8 +30,8 @@ globalOptions = {
     "title": tr("TesseractOCR（本地）"),
     "type": "group",
     "accur":{
-        "title": "置信度下限",
-        "toolTip": "识别数据中低于该置信度的内容将会被丢弃(输入范围:0~100)",
+        "title": tr("置信度下限"),
+        "toolTip": tr("识别数据中低于该置信度的内容将会被丢弃(输入范围:0~100)"),
         "default": "60",
     }
 }
@@ -40,19 +40,19 @@ localOptions = {
     "title": tr("TesseractOCR（本地）"),
     "type": "group",
     "language": {
-        "title": "语言",
+        "title": tr("语言"),
         "type": "group",
-        "toolTip": "请在仅当文本内容包含多语言时再勾选额外识别语言，否则可能会出现识别精度下降问题。", # FIXIT: 目前该tooltip是失效状态。
+        "toolTip": tr("请在仅当文本内容包含多语言时再勾选额外识别语言，否则可能会出现识别精度下降问题。"), # FIXIT: 目前该tooltip是失效状态。
         "enabledFold": True,  # 启用折叠
         "fold": False,  # 默认非折叠状态。（折叠状态会保存）
     },
     "psm":{
-        "title": "自动识别排版",
-        "toolTip": "设置分段格式为自动识别多块文本块排版格式，否则采用单文本块格式识别（只建议在确定无多栏识别场景时关闭，否则可能会出现识别排版错误）",
+        "title": tr("自动识别排版"),
+        "toolTip": tr("设置分段格式为自动识别多块文本块排版格式，否则采用单文本块格式识别（只建议在确定无多栏识别场景时关闭，否则可能会出现识别排版错误）"),
         "default": True,
     },
     "vert":{
-        "title": "开启竖版识别",
+        "title": tr("开启竖版识别"),
         "default": True,
     }
 }
