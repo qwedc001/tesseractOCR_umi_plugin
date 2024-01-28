@@ -8,17 +8,21 @@ TESSERACT_SUPPORTED = {'afr': 'Afrikaans', 'amh': 'Amharic', 'ara': 'Arabic', 'a
 def _dymanicLangList():
     modelsPath = os.path.dirname(os.path.abspath(__file__)) + "/engine/tessdata"
     files = os.listdir(modelsPath)
-    with open(modelsPath+"/modelsInstalled.txt",'a') as f:
-        for fileName in files:
-            if fileName.endswith(".traineddata") and not fileName.endswith("vert.traineddata"):
-                f.write(fileName+"\n")
-                modelName = fileName.split(".")[0]
-                if not modelName in localOptions['language'] and modelName in TESSERACT_SUPPORTED:
-                    localOptions['language'][modelName] = {
-                        "title":TESSERACT_SUPPORTED[modelName],
-                        "default": False,
-                    }
-    f.close()
+    defaultModel = None
+    if "chi_sim.traineddata" in files:
+       defaultModel = "chi_sim"
+    for fileName in files:
+        if fileName.endswith(".traineddata") and not fileName.endswith("vert.traineddata"):
+            modelName = fileName.split(".")[0]
+            if not modelName in localOptions['language'] and modelName in TESSERACT_SUPPORTED:
+                localOptions['language'][modelName] = {
+                    "title":TESSERACT_SUPPORTED[modelName],
+                    "default": False,
+                }
+                if not defaultModel:
+                    defaultModel = modelName
+    localOptions['language'][defaultModel]['default'] = True
+    
 
 globalOptions = {
     "title": tr("TesseractOCR（本地）"),
