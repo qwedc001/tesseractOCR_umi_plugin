@@ -21,6 +21,8 @@ def _dymanicLangList():
                 }
                 if not defaultModel:
                     defaultModel = modelName
+    if not defaultModel:
+        raise Exception("TesseractOCR 插件未能在模型目录中找到任何语言的识别模型")
     localOptions['language'][defaultModel]['default'] = True
     
 
