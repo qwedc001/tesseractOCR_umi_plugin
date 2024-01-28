@@ -1,10 +1,10 @@
 <h1 align="center">适用于 Umi-OCR 文字识别工具 的 Tesseract 插件</h1>
 
 <p align="center">
-  <a href="https://github.com/hiroi-sora/Umi-OCR/releases/latest">
+  <a href="https://github.com/qwedc001/tesseractOCR_umi_plugin/releases/latest">
     <img src="https://img.shields.io/github/v/release/qwedc001/tesseractOCR_umi_plugin?style=flat-square" alt="Umi-OCR">
   </a>
-  <a href="License">
+  <a href="LICENSE">
     <img src="https://img.shields.io/github/license/qwedc001/tesseractOCR_umi_plugin?style=flat-square" alt="LICENSE">
   </a>
 </p>
