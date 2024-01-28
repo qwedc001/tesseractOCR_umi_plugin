@@ -1,6 +1,10 @@
 key,en_US,zh_TW,ja_JP
-ChineseOCR Lite（本地）,ChineseOCR Lite (Local),ChineseOCR Lite（本地）,ChineseOCR Lite（ローカル）
-限制图像边长,Limit image edge length,限制影像邊長,画像の辺の長さを制限する
-（默认）,(Default),（默認）,(デフォルト)
-无限制,Unlimited,無限制,制限なし
-将边长大于该值的图片进行压缩，可以提高识别速度。可能降低识别精度。,Compress images with edge length greater than this value to improve recognition speed. This may reduce recognition accuracy.,將邊長大於該值的圖片進行壓縮，可以提高識別速度。 可能降低識別精度。,辺の長さがこの値より大きい画像を圧縮することで、認識速度を高めることができます。認識精度が低下する可能性があります。
+TesseractOCR（本地）,TesseractOCR (Local),TesseractOCR（本地）,TesseractOCR（ローカル）
+数学公式,Mathematical Formulas,數學公式,数学式
+置信度下限,Confidence Threshold,置信度下限,信頼度のしきい値
+识别数据中低于该置信度的内容将会被丢弃(输入范围:0~100),The content with confidence lower than this threshold will be discarded (Input range: 0~100),識別數據中低於該置信度的內容將會被丟棄（輸入範圍：0~100）,このしきい値より低い信頼度のコンテンツは破棄されます（入力範囲：0〜100）
+语言,Language,語言,言語
+请在仅当文本内容包含多语言时再勾选额外识别语言，否则可能会出现识别精度下降问题。,Please check the extra recognition language only when the text content contains multiple languages or the recognition accuracy may be reduced.,僅當文本內容包含多語言時再勾選額外識別語言，否則可能會出現識別精度下降問題。,テキストに複数の言語が含まれている場合にのみ、追加の認識言語をチェックしてください。それ以外の場合、認識精度が低下する可能性があります。
+自动识别排版,Auto detect the layout,自動識別排版,レイアウトの自動検出
+设置分段格式为自动识别多块文本块排版格式，否则采用单文本块格式识别（只建议在确定无多栏识别场景时关闭，否则可能会出现识别排版错误）,Set the paragraph format to automatically detect the layout of multiple text blocks or the single text block format will be used for recognition (It is only recommended to turn off when it is determined that there is no multi-column recognition scene or the recognition layout may be incorrect),將分段格式設置為自動識別多塊文本塊排版格式，否則採用單文本塊格式識別（只建議在確定無多欄識別場景時關閉，否則可能會出現識別排版錯誤）,段落の形式を複数のテキストブロックのレイアウトを自動的に検出するか、単一のテキストブロックの形式を認識するかに設定します（複数の列認識シーンがないことが確認されている場合にのみオフにすることをお勧めします。それ以外の場合、認識レイアウトが正しくない可能性があります）
+开启竖版识别,Enable vertical text recognition,開啟豎版識別,垂直テキスト認識を有効にする
