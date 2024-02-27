@@ -13,18 +13,18 @@
 
 将本插件加载进 [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) 即可使用。
 
-与其他插件（如PaddleOCR）相比， TesseractOCR 有这些优点：
+与其他插件（如PaddleOCR）相比， TesseractOCR 有这些 **优点** ：
 
 - 👍 英文语言的识别准确率高，且不易出现空格丢失现象。
 - 👍 自带段落分析模型，对书籍/论文排版具有精度非常好的识别率。
 - 👍 允许同时勾选多个语言库（如中文+英文+日文）进行识别。
 - 👍 使用 fast 模型库时，识别速度比 Paddle 更快。
 
-TesseractOCR 有这些缺点：
+TesseractOCR 有这些 **缺点** ：
 
 - 🙁 英文以外的语言（包括中文、日文……），准确度较差。
 
-TesseractOCR 的适用场景：
+TesseractOCR 的 **适用场景** ：
 
 - 纯英文内容。
 - 需要解析文章排版，如PDF识别时。
