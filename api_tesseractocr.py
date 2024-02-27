@@ -121,7 +121,7 @@ class Api:
             level = self._get_r(row, "level")
             # 结束上一行
             if last_level == 5 and level != 5:
-                if not text.isspace():  # 跳过纯空格行
+                if not text.isspace() or not text:  # 跳过纯空格或空行
                     data["text"] = text
                     data["score"] = score / (max(num, 1) * 100)
                     # 若 level 不是 line ，说明新一行不属于同一自然段，结尾要换行
