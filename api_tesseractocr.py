@@ -97,7 +97,7 @@ class Api:
     @staticmethod  # 测试用：打印结果字典
     def _test_print_datas(datas):
         for d in datas:
-            print(f'{d["score"]:.1f}|{d["text"]}|【{repr(d["end"])}】')
+            print(f'{d["score"]:.3f}|{d["text"]}|【{repr(d["end"])}】')
 
     def calcBox(self, left, right):
         topLeft = left[0]
@@ -162,7 +162,7 @@ class Api:
                 continue
             d2 = datas[index + 1]  # 下一行
             d1["end"] = self._word_separator(d1["text"][-1], d2["text"][0])
-        self._test_print_datas(datas)
+        # self._test_print_datas(datas)
         if datas:
             out = {"code": 100, "data": datas}
         else:
