@@ -131,8 +131,8 @@ def _dymanicLangList():
     modelsPath = os.path.dirname(os.path.abspath(__file__)) + "/engine/tessdata"
     files = os.listdir(modelsPath)
     defaultModel = None
-    if "chi_sim.traineddata" in files:
-        defaultModel = "chi_sim"
+    if "eng.traineddata" in files:
+        defaultModel = "eng"
     for fileName in files:
         if fileName.endswith(".traineddata") and not fileName.endswith(
             "vert.traineddata"
