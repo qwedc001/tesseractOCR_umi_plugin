@@ -1,106 +1,168 @@
 import os
-import sys
 import site
 import base64
 from PIL import Image
 from io import BytesIO
 import traceback
+import unicodedata
 
 # 当前目录
 CurrentDir = os.path.dirname(os.path.abspath(__file__))
 # 依赖包目录
 SitePackages = os.path.join(CurrentDir, "site-packages")
 
-ModelDir = os.path.join(CurrentDir,"engine/tessdata/")
+ModelDir = os.path.join(CurrentDir, "engine/tessdata/")
+
 
 class Api:
     def __init__(self, globalArgd):
         self.tesseractOcr = None
-        self.accuracy = float(globalArgd['accur'])
+        self.accuracy = float(globalArgd["accur"])
 
-    def get_select_languages(self,argd) -> list:
+    def get_select_languages(self, argd) -> list:
         selects = []
-        for k,flag in argd.items():
+        for k, flag in argd.items():
             if k.startswith("language.") and flag:
                 language = k[9:]
-                if (language == 'chi_sim' or language == "chi_tra") and argd['vert']:
-                        selects.append(language+"_vert")
+                if (language == "chi_sim" or language == "chi_tra") and argd["vert"]:
+                    selects.append(language + "_vert")
                 selects.append(language)
         return selects
 
-    # 获取两个连续单词的分隔符。letter1为单词1结尾字母，letter2为单词2结尾字母
-    def _word_separator(self, letter1, letter2):
-        # 判断结尾和开头，是否属于汉藏语族
-        # 汉藏语族：行间无需分割符。印欧语族：则两行之间需加空格。
-        ranges = [
-            (0x4E00, 0x9FFF),  # 汉字
-            (0x3040, 0x30FF),  # 日文
-            (0xAC00, 0xD7AF),  # 韩文
-            (0xFF01, 0xFF5E),  # 全角字符
-        ]
-        fa, fb = False, False
-        for l, r in ranges:
-            if l <= ord(letter1) <= r:
-                fa = True
-            if l <= ord(letter2) <= r:
-                fb = True
-        if fa and fb: # 两个字符都是汉藏语族，才没有空格
+    @staticmethod  # 按 key 取一行的内容
+    def _get_r(row, key):
+        tessKey = {  # TesseratOCR 结果表格下标与键的映射
+            "level": 0,
+            "page_num": 1,
+            "block_num": 2,
+            "par_num": 3,
+            "line_num": 4,
+            "word_num": 5,
+            "left": 6,
+            "top": 7,
+            "width": 8,
+            "height": 9,
+            "conf": 10,
+            "text": 11,
+        }
+        if key == "text":
+            return str(row[tessKey[key]])
+        elif key == "conf":
+            return float(row[tessKey[key]])
+        else:
+            return int(row[tessKey[key]])
+
+    @staticmethod  # 传入前句尾字符和后句首字符，返回分隔符
+    def _word_separator(letter1, letter2):
+
+        # 判断Unicode字符是否属于中文、日文或韩文字符集
+        def is_cjk(character):
+            cjk_unicode_ranges = [
+                (0x4E00, 0x9FFF),  # 中文
+                (0x3040, 0x30FF),  # 日文
+                (0x1100, 0x11FF),  # 韩文
+                (0x3130, 0x318F),  # 韩文兼容字母
+                (0xAC00, 0xD7AF),  # 韩文音节
+                # 全角符号
+                (0x3000, 0x303F),  # 中文符号和标点
+                (0xFE30, 0xFE4F),  # 中文兼容形式标点
+                (0xFF00, 0xFFEF),  # 半角和全角形式字符
+            ]
+            return any(
+                start <= ord(character) <= end for start, end in cjk_unicode_ranges
+            )
+
+        if is_cjk(letter1) and is_cjk(letter2):
             return ""
 
-        # 特殊情况：字母2为缩写，如 n't。或者字母2为结尾符号，意味着OCR错误分割。
-        if letter2 in {r"'", ",", ".", "!", "?", ";", ":"}:
+        # 特殊情况：前文为连字符。
+        if letter1 == "-":
             return ""
-        # 其它正常情况，如 俩单词 或 一单词一汉字，加空格
+        # 特殊情况：后文为任意标点符号。
+        if unicodedata.category(letter2).startswith("P"):
+            return ""
+        # 其它正常情况加空格
         return " "
-    
-    def calcBox(self,left,right):
+
+    @staticmethod  # 测试用：打印结果表格
+    def _test_print_table(res):
+        # ['level', 'page_num', 'block_num', 'par_num', 'line_num', 'word_num', 'left', 'top', 'width', 'height', 'conf', 'text']
+        print("原始输出：\n")
+        # 计算每列的最大宽度
+        col_widths = [max(len(str(item)) for item in col) for col in zip(*res)]
+        for row in res:
+            s = " ".join(str(item).ljust(col_widths[i]) for i, item in enumerate(row))
+            print(s)
+
+    @staticmethod  # 测试用：打印结果字典
+    def _test_print_datas(datas):
+        for d in datas:
+            print(f'{d["score"]:.3f}|{d["text"]}|【{repr(d["end"])}】')
+
+    def calcBox(self, left, right):
         topLeft = left[0]
         topRight = right[1] if right else left[1]
         bottomLeft = left[3]
         bottomRight = right[2] if right else left[2]
-        return [topLeft,topRight, bottomRight, bottomLeft]
+        return [topLeft, topRight, bottomRight, bottomLeft]
 
-    def standardize(self,res):
-        # ['level', 'page_num', 'block_num', 'par_num', 'line_num', 'word_num', 'left', 'top', 'width', 'height', 'conf', 'text']
+    def standardize(self, res):
+        # self._test_print_table(res)
         datas = []
-        curString = ""
-        curLeftBox = None
-        curRightBox = None
-        scores = []
-        for item in res[2:]: # 第一行为固定的提示表头
-            text = item[11]
-            score = float(item[10])
-            level = int(item[0]) # level 为 5 时为单词，依据此进行组句
-            left,top,width,height = int(item[6]), int(item[7]), int(item[8]), int(item[9])
-            topLeft = [left,top]
-            topRight = [left+width,top]
-            bottomLeft = [left,top+height]
-            bottomRight = [left+width,top+height]
-            box = [topLeft,topRight, bottomRight, bottomLeft]
-            if level != 5 and len(scores) != 0 and not curString.isspace():
-                final = 0
-                for i in range(len(scores)):
-                    final += scores[i]
-                datas.append({"text": curString, "score": final / len(scores), "box": self.calcBox(curLeftBox,curRightBox), "end": ''})
-                curRightBox = None
-                curLeftBox = None
-                scores = []
-                curString = ""
-            if level == 3 and len(datas):
-                datas[-1]["end"]='\n'
+        # 当前行的信息
+        data = None
+        text = ""
+        score = 0
+        num = 0
+        last_level = -1
+        # 遍历所有行
+        for index in range(1, len(res)):
+            row = res[index]
+            level = self._get_r(row, "level")
+            # 结束上一行
+            if last_level == 5 and level != 5:
+                if not text.isspace() or not text:  # 跳过纯空格或空行
+                    data["text"] = text
+                    data["score"] = score / (max(num, 1) * 100)
+                    # 若 level 不是 line ，说明新一行不属于同一自然段，结尾要换行
+                    if level != 4:
+                        data["end"] = "\n"
+                    datas.append(data)
+            # 发现新的一行
+            if level == 4:
+                left = self._get_r(row, "left")
+                top = self._get_r(row, "top")
+                width = self._get_r(row, "width")
+                height = self._get_r(row, "height")
+                data = {
+                    "box": [
+                        [left, top],
+                        [left + width, top],
+                        [left + width, top + height],
+                        [left, top + height],
+                    ],
+                }
+                score = 0
+                num = 0
+                text = ""
+            # 补充当前行
             if level == 5:
-                if score <= self.accuracy:
-                    continue
-                if curString == "": # 开头不做处理
-                    curLeftBox = box
-                    curString = text
-                else:
-                    curRightBox = box
-                    curString += self._word_separator(curString[-1],text[-1])+text
-                scores.append(score)
+                sep = ""
+                now_text = self._get_r(row, "text")
+                if text and now_text:  # 获取间隔符
+                    sep = self._word_separator(text[-1], now_text[0])
+                text += sep + now_text
+                score += self._get_r(row, "conf")
+                num += 1
+            last_level = level
+        # 遍历所有结果，补充 ["end"] 参数
+        for index in range(len(datas) - 1):
+            d1 = datas[index]
+            if "end" in d1:  # 跳过已有
                 continue
-            else: # 多个非 level5 相连则不做处理，直接跳过即可
-                continue
+            d2 = datas[index + 1]  # 下一行
+            d1["end"] = self._word_separator(d1["text"][-1], d2["text"][0])
+        # self._test_print_datas(datas)
         if datas:
             out = {"code": 100, "data": datas}
         else:
@@ -109,7 +171,9 @@ class Api:
 
     # 获取OcrHandle 实例
     def start(self, argd):
-        self.psm = "--psm 3" if argd['psm'] else "--psm 6" # psm 3: 自动分页 psm6: 单文本块分页  magic number来源：tesseract docs
+        self.psm = (
+            "--psm 3" if argd["psm"] else "--psm 6"
+        )  # psm 3: 自动分页 psm6: 单文本块分页  magic number来源：tesseract docs
         try:
             langs = self.get_select_languages(argd)
             self.languages = "+".join(langs)
@@ -117,8 +181,11 @@ class Api:
                 return ""
             site.addsitedir(SitePackages)  # 依赖库到添加python搜索路径
             import pytesseract
-            pytesseract.pytesseract.tesseract_cmd = os.path.join(CurrentDir,'engine/tesseract.exe')
-            self.tesseractOcr=pytesseract
+
+            pytesseract.pytesseract.tesseract_cmd = os.path.join(
+                CurrentDir, "engine/tesseract.exe"
+            )
+            self.tesseractOcr = pytesseract
             return ""
         except Exception as e:
             self.tesseractOcr = None
@@ -133,8 +200,17 @@ class Api:
             res = {"code": 201, "data": "tesseractOcr not initialized."}
         else:
             try:
-                res = [item.split('\t') for item in self.tesseractOcr.image_to_data(img, lang=self.languages,config=self.psm).split('\n')][:-1] # TODO: 此处tesseract docs实际上给出的command line example很少，所以此处的config以最重要的psm先代替，其他的需要再多研究一下docs再加入
-                res.append([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,""]) # 确保所有的文字都被正确append
+                res = [
+                    item.split("\t")
+                    for item in self.tesseractOcr.image_to_data(
+                        img, lang=self.languages, config=self.psm
+                    ).split("\n")
+                ][
+                    :-1
+                ]  # TODO: 此处tesseract docs实际上给出的command line example很少，所以此处的config以最重要的psm先代替，其他的需要再多研究一下docs再加入
+                res.append(
+                    [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, ""]
+                )  # 确保所有的文字都被正确append
                 res = self.standardize(res)
             except Exception as e:
                 traceback.print_exc()

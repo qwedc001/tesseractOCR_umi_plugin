@@ -6,5 +6,9 @@ TesseractOCR（本地）,TesseractOCR (Local),TesseractOCR（本地）,Tesseract
 语言,Language,語言,言語
 请在仅当文本内容包含多语言时再勾选额外识别语言，否则可能会出现识别精度下降问题。,Please check the extra recognition language only when the text content contains multiple languages or the recognition accuracy may be reduced.,僅當文本內容包含多語言時再勾選額外識別語言，否則可能會出現識別精度下降問題。,テキストに複数の言語が含まれている場合にのみ、追加の認識言語をチェックしてください。それ以外の場合、認識精度が低下する可能性があります。
 自动识别排版,Auto detect the layout,自動識別排版,レイアウトの自動検出
-设置分段格式为自动识别多块文本块排版格式，否则采用单文本块格式识别（只建议在确定无多栏识别场景时关闭，否则可能会出现识别排版错误）,Set the paragraph format to automatically detect the layout of multiple text blocks or the single text block format will be used for recognition (It is only recommended to turn off when it is determined that there is no multi-column recognition scene or the recognition layout may be incorrect),將分段格式設置為自動識別多塊文本塊排版格式，否則採用單文本塊格式識別（只建議在確定無多欄識別場景時關閉，否則可能會出現識別排版錯誤）,段落の形式を複数のテキストブロックのレイアウトを自動的に検出するか、単一のテキストブロックの形式を認識するかに設定します（複数の列認識シーンがないことが確認されている場合にのみオフにすることをお勧めします。それ以外の場合、認識レイアウトが正しくない可能性があります）
+"除非图像中只有一句文本，否则应保持开启。
+同时，建议将[排版解析方案]设为“不做处理”。","Unless there is only one sentence of text in the image, it should remain open.
+And, it is recommended to set the [Layout Analysis Scheme] to ""No processing"".","除非影像中只有一句文字，否則應保持開啟。
+同時，建議將[排版解析方案]設為“不做處理”。","画像にテキストの文が1つしかない限り、開いたままにしておく必要があります。
+また、［組版解析スキーム］を「処理しない」にすることをお勧めします。"
 开启竖版识别,Enable vertical text recognition,開啟豎版識別,垂直テキスト認識を有効にする
