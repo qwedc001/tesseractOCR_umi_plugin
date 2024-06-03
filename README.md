@@ -22,7 +22,7 @@
 
 TesseractOCR 有这些 **缺点** ：
 
-- 🙁 英文以外的语言（包括中文、日文……），准确度较差。
+- 🙁 汉字体系的语言（如中文、日文），准确率欠佳。
 
 TesseractOCR 的 **适用场景** ：
 
@@ -55,7 +55,7 @@ pip install Pillow,pytesseract
 
 ### 添加额外语言
 
-release 包中内置有中英日以及数学识别语言库，如果您所需的语言不在其中，您可以前往 [Tesseract_Fast](https://github.com/tesseract-ocr/tessdata_fast) 或者 [Tesseract_best](https://github.com/tesseract-ocr/tessdata_best) 寻找您所需要的语言库，下载后将其放入 engine/tessdata 文件夹中即可。
+release 包中内置有中英日以及数学识别语言库，如果您所需的语言不在其中，您可以前往 [Tesseract_Fast](https://github.com/tesseract-ocr/tessdata_fast) 或者 [Tesseract_best](https://github.com/tesseract-ocr/tessdata_best) 寻找您所需要的语言库`**.traineddata`，下载后将其放入 engine/tessdata 文件夹中即可。
 
 ### 工程结构：
 
