@@ -134,10 +134,10 @@ def _dymanicLangList():
     if "eng.traineddata" in files:
         defaultModel = "eng"
     for fileName in files:
+        modelName = fileName.split(".")[0]
         if fileName.endswith(".traineddata") and not fileName.endswith(
             "vert.traineddata"
         ):
-            modelName = fileName.split(".")[0]
             if (
                 not modelName in localOptions["language"]
                 and modelName in TESSERACT_SUPPORTED
@@ -148,6 +148,11 @@ def _dymanicLangList():
                 }
                 if not defaultModel:
                     defaultModel = modelName
+            if not modelName in TESSERACT_SUPPORTED:
+                localOptions["language"][modelName] = {
+                    "title": modelName,
+                    "default": False
+                }
     if not defaultModel:
         raise Exception("TesseractOCR 插件未能在模型目录中找到任何语言的识别模型")
     localOptions["language"][defaultModel]["default"] = True
